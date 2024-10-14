@@ -8,13 +8,16 @@ Future<List<ProductModel>> getProduct() async {
         .get('https://657ec9263e3f5b18946421b8.mockapi.io/products');
 
     List<ProductModel> listProduct = [];
+    List<String> titles = [];
 
     for (var i = 0; i < response.data.length; i++) {
       ProductModel product = ProductModel.fromMap(
         response.data[i],
       );
       listProduct.add(product);
+      titles.add(product.title.toString());
     }
+    // print(listProduct[0].title);
     return listProduct;
   } catch (e) {
     print(e);
