@@ -1,10 +1,13 @@
+// import 'package:demo/bloc_manager/bloc_search/search_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:auto_size_text/auto_size_text.dart';
 import '../bloc_manager/bloc/product_bloc.dart';
 
 class ProductPage extends StatelessWidget {
-  const ProductPage({super.key});
+  ProductPage({super.key});
+
+  final TextEditingController search = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +38,21 @@ class ProductPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const TextField(
-                    // onChanged: () {},
-                    decoration: InputDecoration(
+                  TextField(
+                    autofocus: true,
+                    controller: search,
+                    onChanged: (value) {
+                      // print(value);
+                      if (search.text == '') {
+                        print('emmmmpty');
+                        context.read<ProductBloc>().add(GetProductEvent());
+                      } else {
+                        context
+                            .read<ProductBloc>()
+                            .add(ProductOnSearchEvent(word: search.text));
+                      }
+                    },
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -47,8 +62,6 @@ class ProductPage extends StatelessWidget {
                       builder: (context, state) {
                         if (state is SuccessToGetData) {
                           return ListView.builder(
-                            // itemCount: snapshot.data!.length,
-                            // itemCount: state.listProduct.length,
                             itemCount: state.listProduct.length,
                             itemBuilder: (context, index) {
                               return Container(
@@ -84,7 +97,9 @@ class ProductPage extends StatelessWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
+                                            AutoSizeText(
+                                              // softWrap: true,
+                                              maxLines: 2,
                                               state.listProduct[index].title
                                                   .toString(),
                                               style: const TextStyle(
@@ -126,7 +141,96 @@ class ProductPage extends StatelessWidget {
                               );
                             },
                           );
-                        } else if (state is EmptyData) {
+                        } else if (state is ProductHasSearch) {
+                          return ListView.builder(
+                            itemCount: state.productHasFound.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 10),
+                                padding: const EdgeInsets.only(
+                                    top: 10, bottom: 10, left: 10, right: 20),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0xfffba220),
+                                        blurRadius: 10,
+                                        spreadRadius: -4,
+                                      )
+                                    ]),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Image.network(
+                                          state.productHasFound[index]
+                                              .images![0],
+                                          width: 40,
+                                          height: 40,
+                                        ),
+                                        const SizedBox(
+                                          width: 20,
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              // softWrap: true,
+                                              maxLines: 2,
+                                              state.productHasFound[index].title
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              state.productHasFound[index]
+                                                  .category
+                                                  .toString(),
+                                              // snapshot.data![index].category!,
+                                              style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400),
+                                            ),
+                                            Text(
+                                              state.productHasFound[index].price
+                                                  .toString(),
+                                              // snapshot.data![index].price!.toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    IconButton(
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                          Icons.disabled_by_default_rounded,
+                                          color: Color(0xfffc5561),
+                                          size: 30,
+                                        )),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        } 
+                        else if (state is DoesNotHasAnyProductByThisName) {
+                          return const Center(
+                            child: Text('No Product Found With This Name'),
+                          );
+                        }
+                        else if (state is EmptyData) {
                           return const Center(
                             child: Text('Data is Empty'),
                           );

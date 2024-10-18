@@ -16,3 +16,14 @@ class SuccessToGetData extends ProductState {
     required this.listProduct,
   });
 }
+
+
+// ?  Search for a specific product
+class ProductHasSearch extends ProductState {
+  List<ProductModel> productHasFound ;
+  ProductHasSearch({
+    required this.productHasFound,
+  });
+}
+
+class DoesNotHasAnyProductByThisName extends ProductState {}
